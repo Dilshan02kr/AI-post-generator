@@ -1,3 +1,13 @@
+import { Readability } from "@mozilla/readability";
+
+function extractArticle() {
+  const documentClone = document.cloneNode(true) as Document;
+
+  const article = new Readability(documentClone).parse();
+
+  return article;
+}
+
 chrome.runtime.onMessage.addListener(
   (
     message: any,
@@ -13,3 +23,5 @@ chrome.runtime.onMessage.addListener(
     return true;
   },
 );
+
+console.log(extractArticle());
