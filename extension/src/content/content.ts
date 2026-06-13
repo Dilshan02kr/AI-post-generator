@@ -8,17 +8,20 @@ function extractArticle() {
   return article;
 }
 
-console.log("Article:", extractArticle());
-
 chrome.runtime.onMessage.addListener(
   (
     message: any,
     _sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
   ) => {
-    if (message.type === "GET_PAGE_TITLE") {
+    if (message.type === "GET_ARTICLE") {
+      const article = extractArticle();
+
       sendResponse({
-        title: document.title,
+        title: article?.title,
+        content: article?.textContent,
+        excerpt: article?.excerpt,
+        author: article?.byline,
       });
     }
 
