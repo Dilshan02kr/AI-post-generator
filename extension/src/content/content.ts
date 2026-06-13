@@ -8,6 +8,8 @@ function extractArticle() {
   return article;
 }
 
+console.log("Article:", extractArticle());
+
 chrome.runtime.onMessage.addListener(
   (
     message: any,
@@ -23,5 +25,3 @@ chrome.runtime.onMessage.addListener(
     return true;
   },
 );
-
-console.log(extractArticle());
