@@ -3,6 +3,8 @@ import { useState } from "react";
 function Popup() {
   // const [title, setTitile] = useState("");
   const [article, setArticle] = useState<any>(null);
+  const [post, setPost] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const getArticle = async () => {
     const [tab] = await chrome.tabs.query({
@@ -28,11 +30,37 @@ function Popup() {
     );
   };
 
+  const handleGeneratePost = async () => {
+    setLoading(true);
+
+    chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+      chrome.tabs.sendMessage(
+        tab.id!,
+        { type: "GET_ARTICLE" },
+        async (article) => {
+          if (!article) {
+            setLoading(false);
+            return;
+          }
+
+          const result = await chrome.runtime.sendMessage({
+            type: "GENERATE_POST",
+            article,
+          });
+
+          setPost(result);
+          setLoading(false);
+        },
+      );
+    });
+  };
+
   return (
     <div style={{ width: 350, padding: 16 }}>
       <h2>AI Post Generator</h2>
 
       <button onClick={getArticle}>Get Article</button>
+      <button onClick={handleGeneratePost}>Generate LinkedIn Post</button>
 
       <hr />
 
@@ -70,6 +98,11 @@ function Popup() {
             borderRadius: "8px",
           }}
         />
+      )}
+      {loading && <p>Generating post...</p>}
+
+      {post && (
+        <textarea value={post} readOnly rows={15} style={{ width: "100%" }} />
       )}
     </div>
   );
