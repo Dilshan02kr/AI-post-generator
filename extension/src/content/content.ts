@@ -1,5 +1,28 @@
 import { Readability } from "@mozilla/readability";
 
+function extractArticleImage(): string | null {
+  const ogImage = document
+    .querySelector('meta[property="og:image"]')
+    ?.getAttribute("content");
+
+  if (ogImage) return ogImage;
+
+  const twitterImage = document
+    .querySelector('meta[name="twitter:image"]')
+    ?.getAttribute("content");
+
+  if (twitterImage) return twitterImage;
+
+  // fallback to first image in article
+  const firstImage = document.querySelector("article img") as HTMLImageElement;
+
+  if (firstImage?.src) {
+    return firstImage.src;
+  }
+
+  return null;
+}
+
 function extractArticle() {
   const documentClone = document.cloneNode(true) as Document;
 
@@ -22,6 +45,7 @@ chrome.runtime.onMessage.addListener(
         content: article?.textContent,
         excerpt: article?.excerpt,
         author: article?.byline,
+        image: extractArticleImage(),
       });
     }
 
