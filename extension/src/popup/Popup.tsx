@@ -61,6 +61,16 @@ function Popup() {
           />
         </>
       )}
+      {article?.image && (
+        <img
+          src={article.image}
+          alt="Article"
+          style={{
+            width: "100%",
+            borderRadius: "8px",
+          }}
+        />
+      )}
     </div>
   );
 }
