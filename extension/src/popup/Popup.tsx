@@ -1,9 +1,10 @@
 import { useState } from "react";
 
 function Popup() {
-  const [title, setTitile] = useState("");
+  // const [title, setTitile] = useState("");
+  const [article, setArticle] = useState<any>(null);
 
-  const getPageTitle = async () => {
+  const getArticle = async () => {
     const [tab] = await chrome.tabs.query({
       active: true,
       currentWindow: true,
@@ -13,10 +14,15 @@ function Popup() {
 
     chrome.tabs.sendMessage(
       tab.id,
-      { type: "GET_PAGE_TITLE" },
-      (response: { title?: string }) => {
-        if (response?.title) {
-          setTitile(response.title);
+      { type: "GET_ARTICLE" },
+      (response: {
+        title?: string;
+        content?: string;
+        excerpt?: string;
+        author?: string;
+      }) => {
+        if (response) {
+          setArticle(response);
         }
       },
     );
@@ -26,7 +32,7 @@ function Popup() {
     <div style={{ width: 350, padding: 16 }}>
       <h2>AI Post Generator</h2>
 
-      <button onClick={getPageTitle}>Get Page Title</button>
+      <button onClick={getArticle}>Get Article</button>
 
       <hr />
 
@@ -34,7 +40,37 @@ function Popup() {
         <strong>Result:</strong>
       </p>
 
-      <p>{title}</p>
+      {/* <p>{title}</p> */}
+
+      {article && (
+        <>
+          <h3>{article.title}</h3>
+
+          <p>
+            <strong>Author:</strong>
+            {article.author}
+          </p>
+
+          <p>{article.excerpt}</p>
+
+          <textarea
+            value={article.content}
+            readOnly
+            rows={10}
+            style={{ width: "100%" }}
+          />
+        </>
+      )}
+      {article?.image && (
+        <img
+          src={article.image}
+          alt="Article"
+          style={{
+            width: "100%",
+            borderRadius: "8px",
+          }}
+        />
+      )}
     </div>
   );
 }
