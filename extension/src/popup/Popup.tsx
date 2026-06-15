@@ -5,6 +5,7 @@ function Popup() {
   const [article, setArticle] = useState<any>(null);
   const [post, setPost] = useState("");
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const getArticle = async () => {
     const [tab] = await chrome.tabs.query({
@@ -55,18 +56,31 @@ function Popup() {
     });
   };
 
+  const handleCopy = async () => {
+    if (!post) return;
+
+    await navigator.clipboard.writeText(post);
+
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <div style={{ width: 350, padding: 16 }}>
       <h2>AI Post Generator</h2>
 
       <button onClick={getArticle}>Get Article</button>
       <button onClick={handleGeneratePost}>Generate LinkedIn Post</button>
+      <button onClick={handleCopy} disabled={!post}>
+        Copy Post
+      </button>
 
       <hr />
 
       <p>
         <strong>Result:</strong>
       </p>
+      {copied && <p>✅ Copied to clipboard</p>}
 
       {/* <p>{title}</p> */}
 
