@@ -5,6 +5,7 @@ function Popup() {
   const [article, setArticle] = useState<any>(null);
   const [post, setPost] = useState("");
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const getArticle = async () => {
     const [tab] = await chrome.tabs.query({
@@ -60,7 +61,8 @@ function Popup() {
 
     await navigator.clipboard.writeText(post);
 
-    alert("Post copied!");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -78,6 +80,7 @@ function Popup() {
       <p>
         <strong>Result:</strong>
       </p>
+      {copied && <p>✅ Copied to clipboard</p>}
 
       {/* <p>{title}</p> */}
 
