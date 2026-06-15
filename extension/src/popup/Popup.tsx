@@ -55,12 +55,23 @@ function Popup() {
     });
   };
 
+  const handleCopy = async () => {
+    if (!post) return;
+
+    await navigator.clipboard.writeText(post);
+
+    alert("Post copied!");
+  };
+
   return (
     <div style={{ width: 350, padding: 16 }}>
       <h2>AI Post Generator</h2>
 
       <button onClick={getArticle}>Get Article</button>
       <button onClick={handleGeneratePost}>Generate LinkedIn Post</button>
+      <button onClick={handleCopy} disabled={!post}>
+        Copy Post
+      </button>
 
       <hr />
 
