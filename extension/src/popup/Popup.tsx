@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ChangeEvent } from "react";
 import type { PostStyle } from "../types/post";
+import { createMarkdown } from "../utils/markdown";
 
 function Popup() {
   // const [title, setTitile] = useState("");
@@ -73,6 +74,31 @@ function Popup() {
     setStyle(e.target.value as PostStyle);
   };
 
+  const exportMarkdown = () => {
+    console.log("Export button clicked");
+    if (!article || !post) return;
+
+    const markdown = createMarkdown(article, post, style);
+
+    const blob = new Blob([markdown], {
+      type: "text/markdown",
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+
+    a.href = url;
+
+    a.download = `${article.title}.md`;
+
+    a.click();
+
+    console.log("Exported markdown:", markdown);
+
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div style={{ width: 350, padding: 16 }}>
       <h2>AI Post Generator</h2>
@@ -81,6 +107,16 @@ function Popup() {
       <button onClick={handleGeneratePost}>Generate LinkedIn Post</button>
       <button onClick={handleCopy} disabled={!post}>
         Copy Post
+      </button>
+
+      <button
+        onClick={() => {
+          console.log("Button Clicked");
+          alert("clicked");
+          exportMarkdown();
+        }}
+      >
+        Export as Markdown
       </button>
 
       <select value={style} onChange={handleStyleChange}>
