@@ -2,9 +2,9 @@ import { useState } from "react";
 import type { ChangeEvent } from "react";
 import type { PostStyle } from "../types/post";
 import { createMarkdown } from "../utils/markdown";
+import { savePost } from "../storage/history";
 
 function Popup() {
-  // const [title, setTitile] = useState("");
   const [article, setArticle] = useState<any>(null);
   const [post, setPost] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,6 +38,8 @@ function Popup() {
   const handleGeneratePost = async () => {
     setLoading(true);
 
+    getArticle();
+
     chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
       chrome.tabs.sendMessage(
         tab.id!,
@@ -55,6 +57,21 @@ function Popup() {
           });
 
           setPost(result);
+
+          await savePost({
+            id: crypto.randomUUID(),
+
+            title: article.title,
+
+            style,
+
+            post: result,
+
+            image: article.image,
+
+            createdAt: new Date().toISOString(),
+          });
+
           setLoading(false);
         },
       );
@@ -75,10 +92,21 @@ function Popup() {
   };
 
   const exportMarkdown = () => {
-    console.log("Export button clicked");
-    if (!article || !post) return;
+    // alert("export");
+
+    console.log("Export");
+
+    console.log("Post:", post);
+    console.log("Style:", style);
+
+    if (!post) {
+      console.warn("Missing post content. Cannot export markdown.");
+      return;
+    }
 
     const markdown = createMarkdown(article, post, style);
+
+    console.log("Generated markdown:", markdown);
 
     const blob = new Blob([markdown], {
       type: "text/markdown",
@@ -90,7 +118,12 @@ function Popup() {
 
     a.href = url;
 
-    a.download = `${article.title}.md`;
+    const filename = article.title
+      .replace(/[<>:"/\\|?*]/g, "")
+      .replace(/\s+/g, "-")
+      .toLowerCase();
+
+    a.download = `${filename}.md`;
 
     a.click();
 
@@ -111,8 +144,6 @@ function Popup() {
 
       <button
         onClick={() => {
-          console.log("Button Clicked");
-          alert("clicked");
           exportMarkdown();
         }}
       >
@@ -148,13 +179,6 @@ function Popup() {
           </p>
 
           <p>{article.excerpt}</p>
-
-          <textarea
-            value={article.content}
-            readOnly
-            rows={10}
-            style={{ width: "100%" }}
-          />
         </>
       )}
       {article?.image && (
