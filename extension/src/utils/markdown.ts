@@ -1,4 +1,8 @@
 export function createMarkdown(article: any, post: string, style: string) {
+  console.log("Creating markdown with article:", article);
+  console.log("Post content:", post);
+  console.log("Selected style:", style);
+
   return `
 # ${article.title}
 
