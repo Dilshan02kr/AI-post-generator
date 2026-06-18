@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { ChangeEvent } from "react";
 import type { PostStyle } from "../types/post";
 import { createMarkdown } from "../utils/markdown";
+import { savePost } from "../storage/history";
 
 function Popup() {
   const [article, setArticle] = useState<any>(null);
@@ -56,6 +57,21 @@ function Popup() {
           });
 
           setPost(result);
+
+          await savePost({
+            id: crypto.randomUUID(),
+
+            title: article.title,
+
+            style,
+
+            post: result,
+
+            image: article.image,
+
+            createdAt: new Date().toISOString(),
+          });
+
           setLoading(false);
         },
       );
