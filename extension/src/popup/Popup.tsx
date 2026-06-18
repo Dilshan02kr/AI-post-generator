@@ -4,7 +4,6 @@ import type { PostStyle } from "../types/post";
 import { createMarkdown } from "../utils/markdown";
 
 function Popup() {
-  // const [title, setTitile] = useState("");
   const [article, setArticle] = useState<any>(null);
   const [post, setPost] = useState("");
   const [loading, setLoading] = useState(false);
@@ -129,8 +128,6 @@ function Popup() {
 
       <button
         onClick={() => {
-          // console.log("Button Clicked");
-          // alert("clicked");
           exportMarkdown();
         }}
       >
@@ -166,13 +163,6 @@ function Popup() {
           </p>
 
           <p>{article.excerpt}</p>
-
-          <textarea
-            value={article.content}
-            readOnly
-            rows={10}
-            style={{ width: "100%" }}
-          />
         </>
       )}
       {article?.image && (
