@@ -9,7 +9,7 @@ export default defineManifest({
     default_popup: "index.html",
   },
 
-  permissions: ["activeTab", "scripting", "tabs"],
+  permissions: ["activeTab", "scripting", "tabs", "storage"],
 
   content_scripts: [
     {

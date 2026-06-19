@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
 import type { PostStyle } from "../types/post";
 import { createMarkdown } from "../utils/markdown";
-import { savePost } from "../storage/history";
+import { savePost, getPosts } from "../storage/history";
+import type { HistoryItem } from "../types/history";
 
 function Popup() {
   const [article, setArticle] = useState<any>(null);
@@ -10,6 +11,7 @@ function Popup() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [style, setStyle] = useState<PostStyle>("professional");
+  const [history, setHistory] = useState<HistoryItem[]>([]);
 
   const getArticle = async () => {
     const [tab] = await chrome.tabs.query({
@@ -72,6 +74,8 @@ function Popup() {
             createdAt: new Date().toISOString(),
           });
 
+          await loadHistory();
+
           setLoading(false);
         },
       );
@@ -131,6 +135,16 @@ function Popup() {
 
     URL.revokeObjectURL(url);
   };
+
+  const loadHistory = async () => {
+    const posts = await getPosts();
+
+    setHistory(posts);
+  };
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
 
   return (
     <div style={{ width: 350, padding: 16 }}>
@@ -196,6 +210,28 @@ function Popup() {
       {post && (
         <textarea value={post} readOnly rows={15} style={{ width: "100%" }} />
       )}
+
+      <hr />
+
+      <h3>History</h3>
+
+      {history.map((item) => (
+        <div
+          key={item.id}
+          style={{
+            border: "1px solid #ccc",
+            padding: "8px",
+            marginBottom: "10px",
+            borderRadius: "8px",
+          }}
+        >
+          <strong>{item.title}</strong>
+
+          <p>{item.style}</p>
+
+          <small>{new Date(item.createdAt).toLocaleString()}</small>
+        </div>
+      ))}
     </div>
   );
 }
