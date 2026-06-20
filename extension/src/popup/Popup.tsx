@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
 import type { PostStyle } from "../types/post";
 import { createMarkdown } from "../utils/markdown";
-import { savePost, getPosts } from "../storage/history";
+import {
+  savePost,
+  getPosts,
+  deletePost,
+  clearHistory,
+} from "../storage/history";
 import type { HistoryItem } from "../types/history";
 import "./Popup.css";
 
@@ -21,6 +26,7 @@ function Popup() {
   const [copied, setCopied] = useState(false);
   const [style, setStyle] = useState<PostStyle>("professional");
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   const [error, setError] = useState("");
 
   const fetchArticleFromCurrentTab = async (): Promise<Article | null> => {
@@ -164,172 +170,247 @@ function Popup() {
     setHistory(posts);
   };
 
-  const restoreHistoryItem = (item: HistoryItem) => {
+  const handleOpen = (item: HistoryItem) => {
+    setArticle({
+      title: item.title,
+      image: item.image,
+    });
+
     setPost(item.post);
     setStyle(item.style);
     setCopied(false);
     setError("");
+    setShowHistory(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      setError("");
+
+      await deletePost(id);
+      await loadHistory();
+    } catch (err) {
+      console.error(err);
+      setError("Could not delete this history item.");
+    }
+  };
+
+  const handleClearHistory = async () => {
+    if (history.length === 0) return;
+
+    const confirmed = confirm("Delete all saved history?");
+
+    if (!confirmed) return;
+
+    try {
+      setError("");
+
+      await clearHistory();
+      setHistory([]);
+    } catch (err) {
+      console.error(err);
+      setError("Could not clear history.");
+    }
   };
 
   useEffect(() => {
     loadHistory();
   }, []);
 
+  const wordCount = post.trim() ? post.trim().split(/\s+/).length : 0;
+
   return (
     <main className="popup">
-      <section className="hero">
+      <header className="app-header">
         <div>
-          <p className="eyebrow">Chrome Extension</p>
           <h1>AI Post Generator</h1>
-          <p className="subtitle">
-            Turn any article into a polished LinkedIn post.
-          </p>
+          <p>Create a professional LinkedIn post from the current article.</p>
         </div>
+      </header>
 
-        <div className="badge">AI</div>
-      </section>
+      <section className="card controls-card">
+        <div className="form-group">
+          <label htmlFor="post-style">Post style</label>
 
-      <section className="panel">
-        <label className="field">
-          <span>Post style</span>
-
-          <select value={style} onChange={handleStyleChange}>
+          <select id="post-style" value={style} onChange={handleStyleChange}>
             <option value="professional">Professional</option>
             <option value="storytelling">Storytelling</option>
             <option value="viral">Viral</option>
             <option value="technical">Technical</option>
           </select>
-        </label>
+        </div>
 
-        <div className="actions-grid">
-          <button type="button" className="btn secondary" onClick={getArticle}>
+        <div className="button-row">
+          <button
+            type="button"
+            className="btn btn-outline"
+            onClick={getArticle}
+          >
             Get Article
           </button>
 
           <button
             type="button"
-            className="btn primary"
+            className="btn btn-primary"
             onClick={handleGeneratePost}
             disabled={loading}
           >
             {loading ? "Generating..." : "Generate Post"}
           </button>
-
-          <button
-            type="button"
-            className="btn secondary"
-            onClick={handleCopy}
-            disabled={!post}
-          >
-            {copied ? "Copied!" : "Copy"}
-          </button>
-
-          <button
-            type="button"
-            className="btn secondary"
-            onClick={exportMarkdown}
-            disabled={!post}
-          >
-            Export MD
-          </button>
         </div>
 
-        {error && <div className="alert error">{error}</div>}
-        {copied && <div className="alert success">Copied to clipboard</div>}
+        {error && <p className="message message-error">{error}</p>}
+        {copied && (
+          <p className="message message-success">Copied to clipboard.</p>
+        )}
       </section>
 
       {article && (
-        <section className="article-card">
+        <section className="card article-card">
+          <div className="section-title">
+            <span>Source Article</span>
+          </div>
+
           {article.image && (
             <img src={article.image} alt="Article" className="article-image" />
           )}
 
-          <div className="article-content">
-            <p className="section-label">Current Article</p>
+          <div className="article-details">
             <h2>{article.title || "Untitled Article"}</h2>
 
             {article.author && (
-              <p className="author">
-                By <span>{article.author}</span>
-              </p>
+              <p className="article-author">By {article.author}</p>
             )}
 
-            {article.excerpt && <p className="excerpt">{article.excerpt}</p>}
+            {article.excerpt && (
+              <p className="article-excerpt">{article.excerpt}</p>
+            )}
           </div>
         </section>
       )}
 
-      <section className="result-panel">
-        <div className="section-header">
+      <section className="card result-card">
+        <div className="result-header">
           <div>
-            <p className="section-label">Generated Output</p>
-            <h2>LinkedIn Post</h2>
+            <div className="section-title">
+              <span>Result</span>
+            </div>
+
+            <h2>Generated LinkedIn Post</h2>
           </div>
 
-          {post && <span className="word-count">{post.split(/\s+/).length} words</span>}
+          {post && <span className="word-count">{wordCount} words</span>}
         </div>
 
         {loading && (
-          <div className="loading-box">
-            <span className="loader" />
-            <p>Creating your post...</p>
+          <div className="result-placeholder">
+            <div className="spinner" />
+            <p>Generating your post...</p>
           </div>
         )}
 
         {!loading && !post && (
-          <div className="empty-state">
-            <p>Your generated post will appear here.</p>
+          <div className="result-placeholder">
+            <p>No post generated yet.</p>
           </div>
         )}
 
         {post && (
-          <textarea
-            value={post}
-            readOnly
-            rows={12}
-            className="post-output"
-          />
-        )}
-      </section>
+          <>
+            <textarea value={post} readOnly rows={14} className="post-output" />
 
-      <section className="history-panel">
-        <div className="section-header">
-          <div>
-            <p className="section-label">Saved Posts</p>
-            <h2>History</h2>
-          </div>
-
-          <span className="history-count">{history.length}</span>
-        </div>
-
-        {history.length === 0 && (
-          <div className="empty-state small">
-            <p>No saved posts yet.</p>
-          </div>
-        )}
-
-        <div className="history-list">
-          {history.map((item) => (
-            <article key={item.id} className="history-item">
-              <div>
-                <h3>{item.title}</h3>
-
-                <div className="history-meta">
-                  <span>{item.style}</span>
-                  <span>{new Date(item.createdAt).toLocaleString()}</span>
-                </div>
-              </div>
+            <div className="result-actions">
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={handleCopy}
+                disabled={!post}
+              >
+                Copy Post
+              </button>
 
               <button
                 type="button"
-                className="restore-btn"
-                onClick={() => restoreHistoryItem(item)}
+                className="btn btn-outline"
+                onClick={exportMarkdown}
+                disabled={!post}
               >
-                Restore
+                Export Markdown
               </button>
-            </article>
-          ))}
-        </div>
+            </div>
+          </>
+        )}
+      </section>
+
+      <section className="card history-card">
+        <button
+          type="button"
+          className="history-toggle"
+          onClick={() => setShowHistory((current) => !current)}
+          aria-expanded={showHistory}
+        >
+          <span>History</span>
+
+          <span className="history-meta">
+            {history.length} saved {showHistory ? "▲" : "▼"}
+          </span>
+        </button>
+
+        {showHistory && (
+          <div className="history-content">
+            <div className="history-toolbar">
+              <p>Saved generated posts</p>
+
+              <button
+                type="button"
+                className="clear-history-btn"
+                onClick={handleClearHistory}
+                disabled={history.length === 0}
+              >
+                Clear History
+              </button>
+            </div>
+
+            <div className="history-list">
+              {history.length === 0 && (
+                <div className="empty-history">
+                  <p>No saved posts yet.</p>
+                </div>
+              )}
+
+              {history.map((item) => (
+                <article key={item.id} className="history-item">
+                  <div className="history-main">
+                    <h3>{item.title}</h3>
+
+                    <div className="history-info">
+                      <span>{item.style}</span>
+                      <span>{new Date(item.createdAt).toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="history-actions">
+                    <button
+                      type="button"
+                      className="history-action-btn open-btn"
+                      onClick={() => handleOpen(item)}
+                    >
+                      Open
+                    </button>
+
+                    <button
+                      type="button"
+                      className="history-action-btn delete-btn"
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
     </main>
   );
