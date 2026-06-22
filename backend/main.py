@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from models.request_models import GenerateRequest
+from services.gemini_service import generate_post
 
 app = FastAPI()
 
@@ -11,10 +12,13 @@ def home():
 
 @app.post("/generate")
 def generate(request: GenerateRequest):
-    print(request.title)
-    print(request.content)
-    print(request.style)
+    
+    post = generate_post(
+        title=request.title,
+        content=request.content,
+        style=request.style
+    )
 
     return {
-        "post": "This is a generated post based on the provided title, content, and style."
+        "post": post
     }
