@@ -89,6 +89,8 @@ function Popup() {
 
       const articleContent = articleData.content?.trim();
 
+      console.log("Article Content ", articleContent);
+
       if (!articleContent) {
         setError("Article content is empty. Try another article page.");
         return;
@@ -101,6 +103,8 @@ function Popup() {
         content: articleContent,
         style,
       });
+
+      console.log("Fetch result ", result);
 
       setPost(result);
 
@@ -118,7 +122,7 @@ function Popup() {
       console.error(err);
 
       if (err instanceof Error) {
-        setError(err.message);
+        setError(`Error message is ${err.message}`);
       } else {
         setError("Something went wrong while generating the post.");
       }
