@@ -54,26 +54,6 @@ function Popup() {
     });
   };
 
-  // const generatePost = async (articleData: Article): Promise<string> => {
-  //   return new Promise((resolve, reject) => {
-  //     chrome.runtime.sendMessage(
-  //       {
-  //         type: "GENERATE_POST",
-  //         article: articleData,
-  //         style,
-  //       },
-  //       (response: string) => {
-  //         if (chrome.runtime.lastError) {
-  //           reject(chrome.runtime.lastError.message);
-  //           return;
-  //         }
-
-  //         resolve(response);
-  //       },
-  //     );
-  //   });
-  // };
-
   const handleGeneratePost = async () => {
     try {
       setLoading(true);
@@ -143,43 +123,6 @@ function Popup() {
 
     setArticle(articleData);
   };
-
-  // const handleGeneratePost = async () => {
-  //   try {
-  //     setLoading(true);
-  //     setError("");
-  //     setPost("");
-
-  //     const articleData = await fetchArticleFromCurrentTab();
-
-  //     if (!articleData) {
-  //       setError("Could not extract article from this page.");
-  //       return;
-  //     }
-
-  //     setArticle(articleData);
-
-  //     const result = await generatePost(articleData);
-
-  //     setPost(result);
-
-  //     await savePost({
-  //       id: crypto.randomUUID(),
-  //       title: articleData.title || "Untitled Article",
-  //       style,
-  //       post: result,
-  //       image: articleData.image,
-  //       createdAt: new Date().toISOString(),
-  //     });
-
-  //     await loadHistory();
-  //   } catch (err) {
-  //     console.error(err);
-  //     setError("Something went wrong while generating the post.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleCopy = async () => {
     if (!post) return;

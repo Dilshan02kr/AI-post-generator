@@ -17,7 +17,4 @@ export default defineManifest({
       js: ["src/content/content.ts"],
     },
   ],
-  background: {
-    service_worker: "src/background/index.ts",
-  },
 });
