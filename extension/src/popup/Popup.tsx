@@ -10,6 +10,7 @@ import {
 } from "../storage/history";
 import type { HistoryItem } from "../types/history";
 import "./Popup.css";
+import { generatePostFromBackend } from "../services/backendApi";
 
 type Article = {
   title?: string;
@@ -53,38 +54,25 @@ function Popup() {
     });
   };
 
-  const generatePost = async (articleData: Article): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(
-        {
-          type: "GENERATE_POST",
-          article: articleData,
-          style,
-        },
-        (response: string) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError.message);
-            return;
-          }
+  // const generatePost = async (articleData: Article): Promise<string> => {
+  //   return new Promise((resolve, reject) => {
+  //     chrome.runtime.sendMessage(
+  //       {
+  //         type: "GENERATE_POST",
+  //         article: articleData,
+  //         style,
+  //       },
+  //       (response: string) => {
+  //         if (chrome.runtime.lastError) {
+  //           reject(chrome.runtime.lastError.message);
+  //           return;
+  //         }
 
-          resolve(response);
-        },
-      );
-    });
-  };
-
-  const getArticle = async () => {
-    setError("");
-
-    const articleData = await fetchArticleFromCurrentTab();
-
-    if (!articleData) {
-      setError("Could not extract article from this page.");
-      return;
-    }
-
-    setArticle(articleData);
-  };
+  //         resolve(response);
+  //       },
+  //     );
+  //   });
+  // };
 
   const handleGeneratePost = async () => {
     try {
@@ -92,16 +80,27 @@ function Popup() {
       setError("");
       setPost("");
 
-      const articleData = await fetchArticleFromCurrentTab();
+      const articleData = article ?? (await fetchArticleFromCurrentTab());
 
       if (!articleData) {
         setError("Could not extract article from this page.");
         return;
       }
 
+      const articleContent = articleData.content?.trim();
+
+      if (!articleContent) {
+        setError("Article content is empty. Try another article page.");
+        return;
+      }
+
       setArticle(articleData);
 
-      const result = await generatePost(articleData);
+      const result = await generatePostFromBackend({
+        title: articleData.title || "Untitled Article",
+        content: articleContent,
+        style,
+      });
 
       setPost(result);
 
@@ -117,11 +116,66 @@ function Popup() {
       await loadHistory();
     } catch (err) {
       console.error(err);
-      setError("Something went wrong while generating the post.");
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong while generating the post.");
+      }
     } finally {
       setLoading(false);
     }
   };
+
+  const getArticle = async () => {
+    setError("");
+
+    const articleData = await fetchArticleFromCurrentTab();
+
+    if (!articleData) {
+      setError("Could not extract article from this page.");
+      return;
+    }
+
+    setArticle(articleData);
+  };
+
+  // const handleGeneratePost = async () => {
+  //   try {
+  //     setLoading(true);
+  //     setError("");
+  //     setPost("");
+
+  //     const articleData = await fetchArticleFromCurrentTab();
+
+  //     if (!articleData) {
+  //       setError("Could not extract article from this page.");
+  //       return;
+  //     }
+
+  //     setArticle(articleData);
+
+  //     const result = await generatePost(articleData);
+
+  //     setPost(result);
+
+  //     await savePost({
+  //       id: crypto.randomUUID(),
+  //       title: articleData.title || "Untitled Article",
+  //       style,
+  //       post: result,
+  //       image: articleData.image,
+  //       createdAt: new Date().toISOString(),
+  //     });
+
+  //     await loadHistory();
+  //   } catch (err) {
+  //     console.error(err);
+  //     setError("Something went wrong while generating the post.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleCopy = async () => {
     if (!post) return;
