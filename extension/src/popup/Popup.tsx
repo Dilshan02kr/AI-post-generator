@@ -10,6 +10,7 @@ import {
 } from "../storage/history";
 import type { HistoryItem } from "../types/history";
 import "./Popup.css";
+import { generatePostFromBackend } from "../services/backendApi";
 
 type Article = {
   title?: string;
@@ -53,55 +54,37 @@ function Popup() {
     });
   };
 
-  const generatePost = async (articleData: Article): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(
-        {
-          type: "GENERATE_POST",
-          article: articleData,
-          style,
-        },
-        (response: string) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError.message);
-            return;
-          }
-
-          resolve(response);
-        },
-      );
-    });
-  };
-
-  const getArticle = async () => {
-    setError("");
-
-    const articleData = await fetchArticleFromCurrentTab();
-
-    if (!articleData) {
-      setError("Could not extract article from this page.");
-      return;
-    }
-
-    setArticle(articleData);
-  };
-
   const handleGeneratePost = async () => {
     try {
       setLoading(true);
       setError("");
       setPost("");
 
-      const articleData = await fetchArticleFromCurrentTab();
+      const articleData = article ?? (await fetchArticleFromCurrentTab());
 
       if (!articleData) {
         setError("Could not extract article from this page.");
         return;
       }
 
+      const articleContent = articleData.content?.trim();
+
+      console.log("Article Content ", articleContent);
+
+      if (!articleContent) {
+        setError("Article content is empty. Try another article page.");
+        return;
+      }
+
       setArticle(articleData);
 
-      const result = await generatePost(articleData);
+      const result = await generatePostFromBackend({
+        title: articleData.title || "Untitled Article",
+        content: articleContent,
+        style,
+      });
+
+      console.log("Fetch result ", result);
 
       setPost(result);
 
@@ -117,10 +100,28 @@ function Popup() {
       await loadHistory();
     } catch (err) {
       console.error(err);
-      setError("Something went wrong while generating the post.");
+
+      if (err instanceof Error) {
+        setError(`Error message is ${err.message}`);
+      } else {
+        setError("Something went wrong while generating the post.");
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const getArticle = async () => {
+    setError("");
+
+    const articleData = await fetchArticleFromCurrentTab();
+
+    if (!articleData) {
+      setError("Could not extract article from this page.");
+      return;
+    }
+
+    setArticle(articleData);
   };
 
   const handleCopy = async () => {
