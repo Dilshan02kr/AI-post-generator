@@ -8,7 +8,7 @@ load_dotenv()
 
 client = genai.Client()
 
-def map_gemini_error(error: error.APIError) -> AppError:
+def map_gemini_error(error: errors.APIError) -> AppError:
     status_code = int(error.code) if error.code else 500
     gemini_message = error.message
 

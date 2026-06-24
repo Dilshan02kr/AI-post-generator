@@ -10,7 +10,7 @@ deactivate
 
 Run backend:
 
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 
 Open Swagger:
 
