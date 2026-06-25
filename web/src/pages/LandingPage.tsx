@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 function LandingPage() {
   return (
     <main>
@@ -5,8 +7,13 @@ function LandingPage() {
 
       <p>Turn any article into a professional LinkedIn post using AI.</p>
 
-      <button>Get Started</button>
-      <button>Download Extension</button>
+      <Link to="/register">
+        <button type="button">Get Started</button>
+      </Link>
+
+      <Link to="/download">
+        <button type="button">Download Extension</button>
+      </Link>
     </main>
   );
 }
