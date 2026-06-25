@@ -1,20 +1,24 @@
 import { Link, Route, Routes } from "react-router";
 import LandingPage from "./pages/LandingPage";
-import DownloadExtensionPage from "./pages/DownloadExtensionPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
+import DownloadExtensionPage from "./pages/DownloadExtensionPage";
 
 function App() {
   return (
-    <div>
-      <nav>
-        <Link to="/">AI Post Generator</Link>
+    <div className="app">
+      <nav className="navbar">
+        <Link to="/" className="logo">
+          AI Post Generator
+        </Link>
 
-        <div>
-          <Link to="/download">Download Extension</Link>{" "}
-          <Link to="/login">Login</Link> <Link to="/register">Register</Link>{" "}
-          <Link to="/dashboard">Dashboard</Link>
+        <div className="nav-links">
+          <Link to="/download">Download Extension</Link>
+          <Link to="/login">Login</Link>
+          <Link to="/register" className="nav-button">
+            Get Started
+          </Link>
         </div>
       </nav>
 

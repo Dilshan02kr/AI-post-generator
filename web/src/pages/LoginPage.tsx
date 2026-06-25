@@ -2,29 +2,36 @@ import { Link } from "react-router";
 
 function LoginPage() {
   return (
-    <main>
-      <h1>Login</h1>
+    <main className="page auth-page">
+      <section className="auth-card">
+        <h1>Login</h1>
 
-      <p>Login to manage your generated LinkedIn posts.</p>
+        <p>Welcome back. Login to manage your generated LinkedIn posts.</p>
 
-      <form>
-        <div>
-          <label>Email</label>
-          <input type="email" placeholder="you@example.com" />
-        </div>
+        <form className="auth-form">
+          <label>
+            Email
+            <input type="email" placeholder="you@example.com" />
+          </label>
 
-        <div>
-          <label>Password</label>
-          <input type="password" placeholder="Enter password" />
-        </div>
+          <label>
+            Password
+            <input type="password" placeholder="Enter your password" />
+          </label>
 
-        <button type="button">Login</button>
-        <button type="button">Continue with Google</button>
-      </form>
+          <button type="button" className="primary-button full-width">
+            Login
+          </button>
 
-      <p>
-        Don&apos;t have an account? <Link to="/register">Register</Link>
-      </p>
+          <button type="button" className="google-button">
+            Continue with Google
+          </button>
+        </form>
+
+        <p className="auth-footer">
+          Don&apos;t have an account? <Link to="/register">Register</Link>
+        </p>
+      </section>
     </main>
   );
 }

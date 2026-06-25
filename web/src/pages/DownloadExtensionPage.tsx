@@ -1,19 +1,23 @@
 function DownloadExtensionPage() {
   return (
-    <main>
-      <h1>Download Chrome Extension</h1>
+    <main className="page">
+      <section className="content-card">
+        <h1>Download Chrome Extension</h1>
 
-      <p>
-        Install the Chrome extension to generate LinkedIn posts directly from
-        articles you read online.
-      </p>
+        <p>
+          Install the AI Post Generator Chrome extension to extract articles and
+          generate LinkedIn posts directly from your browser.
+        </p>
 
-      <button type="button">Download Extension</button>
+        <button type="button" className="primary-button">
+          Download Extension
+        </button>
 
-      <p>
-        For now, this is a placeholder. Later, we will connect this button to
-        your extension build or Chrome Web Store link.
-      </p>
+        <p className="small-text">
+          For now, this button is a placeholder. Later, we will connect it to
+          your extension build file or Chrome Web Store link.
+        </p>
+      </section>
     </main>
   );
 }

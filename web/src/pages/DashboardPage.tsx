@@ -1,23 +1,31 @@
 function DashboardPage() {
   return (
-    <main>
-      <h1>Dashboard</h1>
-
-      <p>Here you will manage your generated LinkedIn posts.</p>
-
-      <section>
-        <h2>Stats</h2>
-
-        <ul>
-          <li>Generated posts: 0</li>
-          <li>This month: 0</li>
-          <li>Plan: Free</li>
-        </ul>
+    <main className="page dashboard-page">
+      <section className="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>Manage your generated LinkedIn posts and extension activity.</p>
       </section>
 
-      <section>
+      <section className="stats-grid">
+        <div className="stat-card">
+          <h3>Generated Posts</h3>
+          <p>0</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>This Month</h3>
+          <p>0</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>Plan</h3>
+          <p>Free</p>
+        </div>
+      </section>
+
+      <section className="content-card">
         <h2>Recent Posts</h2>
-        <p>No posts yet.</p>
+        <p>No generated posts yet.</p>
       </section>
     </main>
   );
