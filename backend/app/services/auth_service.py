@@ -1,4 +1,4 @@
-from sqlalchemy import Session
+from sqlalchemy.orm import Session
 
 from app.core.exceptions import AppError
 from app.core.security import hash_password

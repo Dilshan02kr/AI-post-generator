@@ -1,7 +1,7 @@
-from posslib.context import CryptContext
+from passlib.context import CryptContext
 
 password_context = CryptContext(
-    schemas=["bcrypt"],
+    schemes=["bcrypt"],
     deprecated=["auto"],
 )
 
