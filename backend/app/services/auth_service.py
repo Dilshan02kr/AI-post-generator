@@ -18,13 +18,13 @@ def register_user(db: Session, request: RegisterRequest):
             status_code=409,
         )
     
-    hash_password = hash_password(request.password)
+    password_hash = hash_password(request.password)
 
     user = create_user(
         db=db,
         full_name=request.full_name,
         email=request.email,
-        password_hash=hash_password,
+        password_hash=password_hash,
     )
 
     return user
