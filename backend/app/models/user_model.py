@@ -32,6 +32,12 @@ class User(Base):
         nullable=True,
     )
 
+    auth_provider: Mapped[str] = mapped_column(
+        String(50),
+        default="email",
+        nullable=False,
+    )
+
     google_sub: Mapped[str | None] = mapped_column(
         String(255),
         unique=True,
