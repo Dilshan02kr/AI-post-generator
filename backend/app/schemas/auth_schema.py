@@ -5,6 +5,10 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=6, max_length=72)
 
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=1, max_length=72)
+
 class UserResponse(BaseModel):
     id: str
     full_name: str
@@ -15,8 +19,19 @@ class UserResponse(BaseModel):
         "from_attributes": True
     }
 
+class LoginResponse(BaseModel):
+    success: bool
+    message: str
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+
 class RegisterResponse(BaseModel):
     success: bool
     message: str
+    user: UserResponse
+
+class MeResponse(BaseModel):
+    success: bool
     user: UserResponse
 
