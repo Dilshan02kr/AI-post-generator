@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.generate_routes import router as generate_router
+from app.api.routes.auth_routes import router as auth_router
 from app.core.exception_handlers import register_exception_handlers
 
 
@@ -28,3 +29,4 @@ def health_check():
     }
 
 app.include_router(generate_router)
+app.include_router(auth_router)
