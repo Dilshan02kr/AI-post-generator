@@ -4,24 +4,12 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import DownloadExtensionPage from "./pages/DownloadExtensionPage";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <div className="app">
-      <nav className="navbar">
-        <Link to="/" className="logo">
-          AI Post Generator
-        </Link>
-
-        <div className="nav-links">
-          <Link to="/download">Download Extension</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/register" className="nav-button">
-            Get Started
-          </Link>
-        </div>
-      </nav>
-
+      <Navbar />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/download" element={<DownloadExtensionPage />} />
