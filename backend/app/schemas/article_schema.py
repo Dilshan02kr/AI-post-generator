@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field, HttpUrl
 
+from app.schemas.generate_schema import PostStyle
+
 class ExtractUrlRequest(BaseModel):
     url: HttpUrl
 
@@ -15,3 +17,14 @@ class ExtractUrlResponse(BaseModel):
     success: bool
     article: ExtractedArticle
 
+class GenerateFromUrlRequest(BaseModel):
+    url: HttpUrl
+    style: PostStyle = "professional"
+
+
+class GenerateFromUrlResponse(BaseModel):
+    success: bool
+    article: ExtractedArticle
+    post: str
+
+    
