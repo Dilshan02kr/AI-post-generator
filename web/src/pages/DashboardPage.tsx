@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { getCurrentUser, type User } from "../services/authApi";
+
+import { getCurrentUser } from "../services/authApi";
+import type { User } from "../services/authApi";
 
 function DashboardPage() {
   const navigate = useNavigate();
