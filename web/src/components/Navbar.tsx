@@ -1,22 +1,13 @@
-import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    setIsLoggedIn(Boolean(token));
-  }, [location.pathname]);
+  const { isLoggedIn, logout } = useAuth();
 
   function handleLogout() {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
-
-    setIsLoggedIn(false);
+    logout();
     navigate("/login");
   }
 

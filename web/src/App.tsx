@@ -6,6 +6,7 @@ import DashboardPage from "./pages/DashboardPage";
 import DownloadExtensionPage from "./pages/DownloadExtensionPage";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PublicOnlyRoute from "./components/PublicOnlyRoute";
 
 function App() {
   return (
@@ -14,8 +15,23 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/download" element={<DownloadExtensionPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route
+          path="/login"
+          element={
+            <PublicOnlyRoute>
+              <LoginPage />
+            </PublicOnlyRoute>
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            <PublicOnlyRoute>
+              <RegisterPage />
+            </PublicOnlyRoute>
+          }
+        />
         <Route
           path="/dashboard"
           element={

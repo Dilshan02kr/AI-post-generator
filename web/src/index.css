@@ -461,6 +461,13 @@ input {
   color: #ef4444;
 }
 
+.page-loading {
+  padding: 40px 24px;
+  text-align: center;
+  color: #64748b;
+  font-weight: 600;
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     align-items: flex-start;

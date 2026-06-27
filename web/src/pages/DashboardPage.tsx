@@ -3,67 +3,16 @@ import { useNavigate } from "react-router";
 
 import { getCurrentUser } from "../services/authApi";
 import type { User } from "../services/authApi";
+import { useAuth } from "../context/AuthContext";
 
 function DashboardPage() {
   const navigate = useNavigate();
 
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    async function loadCurrentUser() {
-      const token = localStorage.getItem("access_token");
-
-      if (!token) {
-        navigate("/login");
-        return;
-      }
-
-      try {
-        const currentUser = await getCurrentUser(token);
-        setUser(currentUser);
-      } catch (error) {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("user");
-
-        if (error instanceof Error) {
-          setError(error.message);
-        } else {
-          setError("Session expired. Please login again.");
-        }
-
-        setTimeout(() => {
-          navigate("/login");
-        }, 1000);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadCurrentUser();
-  }, [navigate]);
+  const { user, logout } = useAuth();
 
   function handleLogout() {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
+    logout();
     navigate("/login");
-  }
-
-  if (isLoading) {
-    return (
-      <main className="dashboard-page">
-        <p>Loading dashboard...</p>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className="dashboard-page">
-        <p className="error-message">{error}</p>
-      </main>
-    );
   }
 
   return (

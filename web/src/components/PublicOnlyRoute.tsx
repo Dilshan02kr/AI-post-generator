@@ -1,23 +1,23 @@
-import type { ReactNode } from "react";
 import { Navigate } from "react-router";
+import type { ReactNode } from "react";
 import { useAuth } from "../context/AuthContext";
 
-type ProtectedRouteProps = {
+type PublicOnlyRouteProps = {
   children: ReactNode;
 };
 
-function ProtectedRoute({ children }: ProtectedRouteProps) {
+function PublicOnlyRoute({ children }: PublicOnlyRouteProps) {
   const { isLoggedIn, isLoading } = useAuth();
 
   if (isLoading) {
     return <p className="page-loading">Checking authentication...</p>;
   }
 
-  if (!isLoggedIn) {
-    return <Navigate to="/login" replace />;
+  if (isLoggedIn) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return children;
 }
 
-export default ProtectedRoute;
+export default PublicOnlyRoute;
