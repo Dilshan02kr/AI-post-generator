@@ -26,5 +26,5 @@ class GenerateFromUrlResponse(BaseModel):
     success: bool
     article: ExtractedArticle
     post: str
+    history_id: str | None = None
 
-    

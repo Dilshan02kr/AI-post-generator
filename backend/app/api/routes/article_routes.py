@@ -1,10 +1,19 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.db.database import get_db
 from app.models.user_model import User
-from app.schemas.article_schema import (ExtractUrlRequest, ExtractUrlResponse, GenerateFromUrlRequest, GenerateFromUrlResponse,)
-from app.services.article_extraction_service import extract_article_from_url
-from app.services.gemini_service import generate_post
+from app.schemas.article_schema import (
+    ExtractUrlRequest,
+    ExtractUrlResponse,
+    GenerateFromUrlRequest,
+    GenerateFromUrlResponse,
+)
+from app.services.article_service import (
+    extract_article_service,
+    generate_post_from_url_service,
+)
 
 
 router = APIRouter(
@@ -18,7 +27,7 @@ def extract_url_article(
     request: ExtractUrlRequest,
     current_user: User = Depends(get_current_user),
 ):
-    article = extract_article_from_url(
+    article = extract_article_service(
         url=str(request.url),
     )
 
@@ -27,23 +36,23 @@ def extract_url_article(
         article=article,
     )
 
+
 @router.post("/generate-from-url", response_model=GenerateFromUrlResponse)
 def generate_post_from_url(
     request: GenerateFromUrlRequest,
     current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
-    article = extract_article_from_url(
+    result = generate_post_from_url_service(
+        db=db,
+        current_user=current_user,
         url=str(request.url),
-    )
-
-    post = generate_post(
-        title=article["title"],
-        content=article["content"],
         style=request.style,
     )
 
     return GenerateFromUrlResponse(
         success=True,
-        article=article,
-        post=post,
+        article=result["article"],
+        post=result["post"],
+        history_id=result["history_id"],
     )
