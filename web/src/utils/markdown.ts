@@ -1,15 +1,36 @@
 import type { ExtractedArticle } from "../services/articleApi";
+import type { GeneratedPostHistoryItem } from "../services/historyApi";
 
 type CreateMarkdownParams = {
-  article: ExtractedArticle | null;
+  article?: ExtractedArticle | null;
+  historyItem?: GeneratedPostHistoryItem | null;
   post: string;
 };
 
-export function createMarkdown({ article, post }: CreateMarkdownParams): string {
-  const title = article?.title || "Generated LinkedIn Post";
-  const sourceUrl = article?.url || "";
-  const author = article?.author || "Unknown";
-  const excerpt = article?.excerpt || "";
+export function createMarkdown({
+  article,
+  historyItem,
+  post,
+}: CreateMarkdownParams): string {
+  const title =
+    article?.title ||
+    historyItem?.article_title ||
+    "Generated LinkedIn Post";
+
+  const sourceUrl =
+    article?.url ||
+    historyItem?.article_url ||
+    "";
+
+  const author =
+    article?.author ||
+    historyItem?.article_author ||
+    "Unknown";
+
+  const excerpt =
+    article?.excerpt ||
+    historyItem?.article_excerpt ||
+    "";
 
   return `# ${title}
 

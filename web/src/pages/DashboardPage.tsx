@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 
 import { useAuth } from "../context/AuthContext";
@@ -8,7 +8,13 @@ import {
   type PostStyle,
 } from "../services/articleApi";
 
+import {
+  getGeneratedPostHistory,
+  type GeneratedPostHistoryItem,
+} from "../services/historyApi";
+
 import { createMarkdown } from "../utils/markdown";
+import { downloadTextFile } from "../utils/download";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -23,6 +29,32 @@ function DashboardPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
+
+  const [history, setHistory] = useState<GeneratedPostHistoryItem[]>([]);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState("");
+
+  async function loadHistory() {
+    if (!token) {
+      return;
+    }
+
+    try {
+      setIsHistoryLoading(true);
+      setHistoryError("");
+
+      const posts = await getGeneratedPostHistory(token);
+      setHistory(posts);
+    } catch (error) {
+      if (error instanceof Error) {
+        setHistoryError(error.message);
+      } else {
+        setHistoryError("Failed to load history.");
+      }
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  }
 
   function handleLogout() {
     logout();
@@ -39,18 +71,24 @@ function DashboardPage() {
       post: generatedPost,
     });
 
-    const blob = new Blob([markdown], {
-      type: "text/markdown;charset=utf-8",
+    downloadTextFile(
+      markdown,
+      "linkedin-post.md",
+      "text/markdown;charset=utf-8",
+    );
+  }
+
+  function handleDownloadHistoryMarkdown(item: GeneratedPostHistoryItem) {
+    const markdown = createMarkdown({
+      historyItem: item,
+      post: item.generated_post,
     });
 
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "linkedin-post.md";
-    link.click();
-
-    URL.revokeObjectURL(url);
+    downloadTextFile(
+      markdown,
+      "linkedin-post-history.md",
+      "text/markdown;charset=utf-8",
+    );
   }
 
   async function handleGenerateFromUrl(
@@ -86,6 +124,8 @@ function DashboardPage() {
 
       setArticle(response.article);
       setGeneratedPost(response.post);
+
+      await loadHistory();
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -94,6 +134,19 @@ function DashboardPage() {
       }
     } finally {
       setIsGenerating(false);
+    }
+  }
+
+  async function handleCopyHistoryPost(post: string) {
+    try {
+      await navigator.clipboard.writeText(post);
+      setCopyMessage("Post copied to clipboard.");
+
+      setTimeout(() => {
+        setCopyMessage("");
+      }, 2000);
+    } catch {
+      setCopyMessage("Could not copy post.");
     }
   }
 
@@ -113,6 +166,10 @@ function DashboardPage() {
       setCopyMessage("Could not copy post.");
     }
   }
+
+  useEffect(() => {
+    loadHistory();
+  }, [token]);
 
   return (
     <main className="dashboard-page">
@@ -223,6 +280,77 @@ function DashboardPage() {
           />
         </section>
       )}
+
+      <section className="dashboard-card history-card">
+        <div className="history-header">
+          <div>
+            <h2>Generated Post History</h2>
+            <p className="dashboard-muted-text">
+              Your previously generated LinkedIn posts.
+            </p>
+          </div>
+
+          <button onClick={loadHistory} className="secondary-button">
+            Refresh
+          </button>
+        </div>
+
+        {isHistoryLoading && <p>Loading history...</p>}
+
+        {historyError && <p className="error-message">{historyError}</p>}
+
+        {!isHistoryLoading && history.length === 0 && (
+          <p className="dashboard-muted-text">
+            No generated posts yet. Generate your first post from a URL above.
+          </p>
+        )}
+
+        <div className="history-list">
+          {history.map((item) => (
+            <article key={item.id} className="history-item">
+              <div className="history-item-header">
+                <div>
+                  <h3>{item.article_title}</h3>
+                  <p className="dashboard-muted-text">
+                    Style: {item.style} •{" "}
+                    {new Date(item.created_at).toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              {item.article_image && (
+                <img
+                  src={item.article_image}
+                  alt={item.article_title}
+                  className="history-image"
+                />
+              )}
+
+              <p className="history-post-preview">{item.generated_post}</p>
+
+              <div className="history-actions">
+                <a href={item.article_url} target="_blank" rel="noreferrer">
+                  Open article
+                </a>
+
+                <button
+                  onClick={() => handleCopyHistoryPost(item.generated_post)}
+                  className="copy-button"
+                >
+                  Copy
+                </button>
+
+                <button
+                  onClick={() => handleDownloadHistoryMarkdown(item)}
+                  className="download-button"
+                >
+                  Download Markdown
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="dashboard-grid">
         <div className="dashboard-card">
