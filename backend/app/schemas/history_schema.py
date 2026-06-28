@@ -22,3 +22,7 @@ class GeneratedPostResponse(BaseModel):
 class GeneratedPostListResponse(BaseModel):
     success: bool
     posts: list[GeneratedPostResponse]
+
+class DeleteGeneratedPostResponse(BaseModel):
+    success: bool
+    message: str
