@@ -64,3 +64,40 @@ def get_generated_posts_by_user(
             status_code=500,
             details=str(error),
         )
+    
+def get_generated_post_by_id(
+    db: Session,
+    post_id: str,
+) -> GeneratedPost | None:
+    try:
+        return (
+            db.query(GeneratedPost)
+            .filter(GeneratedPost.id == post_id)
+            .first()
+        )
+
+    except SQLAlchemyError as error:
+        raise AppError(
+            code="GENERATED_POST_READ_FAILED",
+            message="Failed to read generated post.",
+            status_code=500,
+            details=str(error),
+        )
+    
+def delete_generated_post(
+    db: Session,
+    post: GeneratedPost,
+) -> None:
+    try:
+        db.delete(post)
+        db.commit()
+
+    except SQLAlchemyError as error:
+        db.rollback()
+
+        raise AppError(
+            code="GENERATED_POST_DELETE_FAILED",
+            message="Failed to delete generated post.",
+            status_code=500,
+            details=str(error),
+        )
