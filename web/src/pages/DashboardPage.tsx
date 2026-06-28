@@ -14,6 +14,7 @@ import {
 } from "../services/historyApi";
 
 import { createMarkdown } from "../utils/markdown";
+import { downloadTextFile } from "../utils/download";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -70,18 +71,24 @@ function DashboardPage() {
       post: generatedPost,
     });
 
-    const blob = new Blob([markdown], {
-      type: "text/markdown;charset=utf-8",
+    downloadTextFile(
+      markdown,
+      "linkedin-post.md",
+      "text/markdown;charset=utf-8",
+    );
+  }
+
+  function handleDownloadHistoryMarkdown(item: GeneratedPostHistoryItem) {
+    const markdown = createMarkdown({
+      historyItem: item,
+      post: item.generated_post,
     });
 
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "linkedin-post.md";
-    link.click();
-
-    URL.revokeObjectURL(url);
+    downloadTextFile(
+      markdown,
+      "linkedin-post-history.md",
+      "text/markdown;charset=utf-8",
+    );
   }
 
   async function handleGenerateFromUrl(
@@ -334,7 +341,7 @@ function DashboardPage() {
                 </button>
 
                 <button
-                  // onClick={() => handleDownloadHistoryMarkdown(item)}
+                  onClick={() => handleDownloadHistoryMarkdown(item)}
                   className="download-button"
                 >
                   Download Markdown
